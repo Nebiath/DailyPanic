@@ -28,8 +28,7 @@ sleep 120
 
 # For each VM, perform proper actions
 foreach ($vm in $vms) {
-# Not sure if snapshot is really needed, I just respect previous code. IMO, I’d skip this
-# New-Snapshot -VM $vm -Memory:$false -Name "Before virtual HW upgrade"
+
 # Change VM config
 Set-VM -VM $vm -memoryMB ($vm.memoryMB + 8192) -Confirm:$false
 }
