@@ -31,4 +31,4 @@ foreach ($ds in $dss) {
     }
 }
 
-$report | Export-Csv C:\Users\carlos.urgel.adm\Desktop\Datastores.csv
+$report | Export-Csv C:\Path\To\Desktop\Datastores.csv
