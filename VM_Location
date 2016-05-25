@@ -1,4 +1,12 @@
-
+<#
+.SYNOPSIS
+   List VM locations
+.DESCRIPTION
+   This PowerCLI script takes input from a list of VMs in the vcenter and outputs specific data:
+   VM Name, ESXi Host running and Datastore that have the physical files. 
+  
+  This output is saved to a CSV file.
+#>
 
 ## Connect to vCenter
 $vcenter = '14.111.17.16'
