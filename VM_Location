@@ -1,0 +1,13 @@
+
+
+## Connect to vCenter
+$vcenter = '14.111.17.16'
+Write-Host "Connecting to $vcenter" -ForegroundColor Green
+Connect-VIServer $vcenter | Out-Null
+
+
+$vmlist = Get-Content C:\temp\VMlist.txt
+
+foreach($vm in $vmlist) {
+    Get-VM $vm | Select Name,VMHost,@{N="Datastore"; E={$_ | Get-Datastore}} | Export-Csv -Path  C:\temp\VMsAndHostsInfo.csv -NoTypeInformation -UseCulture
+}
