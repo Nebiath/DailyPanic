@@ -5,7 +5,7 @@
 .DESCRIPTION
    This PowerCLI script changes the memory of a list of given VMs.
    It takes the data from a TXT file.
-   VMs are powered down before and after the change.
+   VMs are powered down before and booted up after the change.
    
 #>
 
