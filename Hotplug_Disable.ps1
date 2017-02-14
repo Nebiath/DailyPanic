@@ -4,6 +4,7 @@
 .DESCRIPTION
    Script to disable the HotAdd/HotPlug capability in ESXi 5.x and ESXi/ESX 4.x virtual machines
    to comply with this KB http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1012225
+   Can be reused to change any other value in a given VM.
 #>
 # General variable definition
 $key = "devices.hotplug"
