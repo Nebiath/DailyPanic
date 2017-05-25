@@ -21,7 +21,7 @@ foreach($ESX in $esxlist) {
 
     Get-VM | Where-Object {$_.powerstate -eq ‘PoweredOn’} | Shutdown-VMGuest -Confirm:$false
 
-    sleep 60
+    sleep 20
 
     Write-Host "====================================================================" -ForegroundColor Green
 
