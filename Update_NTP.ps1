@@ -1,3 +1,11 @@
+<#
+.SYNOPSIS
+   Change ESXi NTP server in batch
+.DESCRIPTION
+   This PowerCLI script changes the value of the NTP server in a group of ESXi
+   It takes the data from a TXT file. 
+#>
+
 ## Connect to vCenter
 $vcenter = 'IP_Vcenter'
 Write-Host "Connecting to $vcenter" -ForegroundColor Green
