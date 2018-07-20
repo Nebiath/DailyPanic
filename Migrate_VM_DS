@@ -1,0 +1,30 @@
+<#
+.SYNOPSIS
+   Migrate VM from vcenter to vcenter
+.DESCRIPTION
+   This PowerCLI script helps with the batch migration of the VMs from one vcenter to another one, deleting the
+   NIC from the VM and storage vmotioning them to a shared datastore, unregistering them
+   It takes the data from a TXT file. 
+#>
+
+$VMList = Get-Content D:\Webs\VMs.txt
+
+Foreach ($VM in $VMList) {
+
+# Network card deletion
+
+Get-NetworkAdapter $VM | where { $_.NetworkName -eq "vlan2831_PRO" } | Remove-NetworkAdapter -Confirm:$false
+
+Get-NetworkAdapter $VM | where { $_.NetworkName -eq "vlan1734_MGMT" } | Remove-NetworkAdapter -Confirm:$false
+
+Get-NetworkAdapter $VM | where { $_.NetworkName -eq "vlan3547_BCK" } | Remove-NetworkAdapter -Confirm:$false
+
+# Storage vmotioning
+
+Move-VM -VM $VM -Destination shdbcnbeh09.shdbcn.jc.ts-ian.net -Datastore shdbcnbed3008_ids_compartido -RunAsync
+
+# vcenter unregister
+
+Remove-VM -VM $VM -DeleteFromDisk:$false -Confirm:$false -RunAsync
+
+}
