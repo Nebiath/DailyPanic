@@ -28,3 +28,21 @@ Move-VM -VM $VM -Destination shdbcnbeh09.shdbcn.jc.ts-ian.net -Datastore shdbcnb
 Remove-VM -VM $VM -DeleteFromDisk:$false -Confirm:$false -RunAsync
 
 }
+
+
+# Second part of the script creates the NICs in the VMs and moves them to the given datastore cluster
+
+$VMList = Get-Content C:\Users\curgel\Desktop\Lista_VM.txt
+$myDatastoreCluster1 = Get-DatastoreCluster -Name 'shdbc2gec01'
+
+Foreach ($VM in $VMList) {
+
+New-NetworkAdapter -VM $VM -Type Vmxnet3 -NetworkName vlan2831_PRO -StartConnected:$true -Confirm:$false
+
+New-NetworkAdapter -VM $VM -Type Vmxnet3 -NetworkName vlan1734_MGMT -StartConnected:$true -Confirm:$false
+
+New-NetworkAdapter -VM $VM -Type Vmxnet3 -NetworkName vlan3547_BCK -StartConnected:$true -Confirm:$false
+
+Move-VM -VM $VM -Datastore $myDatastoreCluster1 -RunAsync
+
+}
