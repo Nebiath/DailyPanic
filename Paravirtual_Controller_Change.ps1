@@ -5,18 +5,32 @@
    PowerShell script to modify the SCSI ParaVirtual Controller. It will shutdown the VM twice for the change to be conducted.
    Take into account this KB https://kb.vmware.com/s/article/2015181
 .EXAMPLE
-
+  .\Paravirtual_Controller_Change.ps1 User Password
 .INPUTS
-
+  A username and password for the gust VM's OS must be provided. Also, a file with the VMs name must be included.
 .NOTES
-
+  VMtools need to be installed ands running in the VMs to be modifies for the script to work as intended.
 .FUNCTIONALITY
 
 #>
 
 # Defined variables
-#$vmName = Get-Content "C:\Webs\VMs.txt"
+#$vmName = Get-Content "C:\Path_To_File\VMs.txt"
 
+[CmdletBinding()]
+
+param (
+  [Parameter(Position = 0, Mandatory, HelpMessage = "Please provide a username for connecting to the VMs OS.")]
+  [ValidateNotNullorEmpty()]
+	[string]$User,
+
+	[Parameter(Position = 1, Mandatory, HelpMessage = "Please provide a password for connecting to the VMs OS.")]
+  [ValidateNotNullorEmpty()]
+  [string]$Password
+
+)
+
+# Just a test. To be deleted.
 $vmName = "VM_Name"
 
 Write-Host (get-date -uformat %I:%M:%S) "Processing virtual machine:" $vmName -ForegroundColor Green
@@ -57,13 +71,19 @@ Write-Host `t(get-date -uformat %I:%M:%S) "Starting virtual machine" -Foreground
 start-vm -vm $vmName -Confirm:$false | Out-Null
 
 # Changing the advanced setting disk.enableUUID
-Write-Host `t(get-date -uformat %I:%M:%S) "Changing disk.enableUUID to TRUE" -ForegroundColor Green
-Get-VM $vmName | New-AdvancedSetting -Name "disk.enableUUID" -Value "true" -Confirm:$false | Out-Null
+Write-Host `t(get-date -uformat %I:%M:%S) "Checking if disk.enableUUID is set to TRUE" -ForegroundColor Green
+if ( Get-VM $vmName | Get-AdvancedSetting -Name disk.enableUUID).Value -ne "true") {
+	Get-VM $vmName | New-AdvancedSetting -Name "disk.enableUUID" -Value "true" -Confirm:$false | Out-Null
+	Write-Host `t(get-date -uformat %I:%M:%S) "Changing disk.enableUUID to TRUE" -ForegroundColor Green
+}
+else {
+	Write-Host `t(get-date -uformat %I:%M:%S) "Disk.enableUUID already set to TRUE - Nothing to do" -ForegroundColor Green
+}
 
 Start-Sleep -s 40
 
 # Online disks with PVSCSI resolving the online policy
 Write-Host `t(get-date -uformat %I:%M:%S) "Bringing the disks online" -ForegroundColor Green
-Invoke-VMScript -VM $vmName -GuestUser USER -GuestPassword PASS -ScriptText 'get-disk | where OperationalStatus -eq "Offline" | %{$_.Number ; Set-Disk -Number $_.Number -IsOffline $false; Set-Disk -Number $_.Number -IsReadOnly $false}' -Verbose:$false
+Invoke-VMScript -VM $vmName -GuestUser $User -GuestPassword $Password -ScriptText 'get-disk | where OperationalStatus -eq "Offline" | %{$_.Number ; Set-Disk -Number $_.Number -IsOffline $false; Set-Disk -Number $_.Number -IsReadOnly $false}' -Verbose:$false
 
 Write-Host (get-date -uformat %I:%M:%S) "Processing completed! Please review change log above." -ForegroundColor Green
