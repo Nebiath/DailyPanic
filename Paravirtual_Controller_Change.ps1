@@ -11,6 +11,7 @@
    A username and password for the gust VM's OS must be provided. Also, a file with the VMs name must be included.
 .NOTES
    VMtools need to be installed ands running in the VMs to be modifies for the script to work as intended.
+   Also, the user needs to be connected to the vcenter where the VMs are located with an account with enough privileges.
 .FUNCTIONALITY
 
 #>
@@ -31,6 +32,7 @@ param (
 $WarningPreference = 'SilentlyContinue'
 
 # Defined variables
+# VM list to be modified. One name per line. It's a good idea to separate the VMs by vcenter.
 $vmName = Get-Content "C:\Path_To_File\VMs.txt"
 
 Write-Host (get-date -uformat %I:%M:%S) "Processing virtual machine:" $vmName -ForegroundColor Green
@@ -42,7 +44,7 @@ do {start-sleep -s 3;$powerstate = get-vm $vmName | % {$_.PowerState}} while ($p
 
 # Add the new disk on Paravirtual Adapter Type
 Write-Host `t(get-date -uformat %I:%M:%S) "Adding temporary hard drive on paravirtual SCSI controller" -ForegroundColor Green
-Get-VM $vmName | New-HardDisk -CapacityKB 1024 -StorageFormat Thin | New-ScsiController -Type paravirtual | Out-Null
+Get-VM $vmName | New-HardDisk -CapacityKB 1048 -StorageFormat Thin | New-ScsiController -Type paravirtual | Out-Null
 
 # Waiting a bit to start the VM because reasons...
 Start-Sleep -s 10
@@ -61,7 +63,7 @@ do {start-sleep -s 3;$powerstate = get-vm $vmName | % {$_.PowerState}} while ($p
 
 # VM disk reconfiguration
 Write-Host `t(get-date -uformat %I:%M:%S) "Removing temporary hard drive from virtual machine" -ForegroundColor Green
-Get-HardDisk -vm $vmName | Where {$_.CapacityKB -eq 1024} | Remove-HardDisk -DeletePermanently -Confirm:$False | Out-Null
+Get-HardDisk -vm $vmName | Where {$_.CapacityKB -eq 1048} | Remove-HardDisk -DeletePermanently -Confirm:$False | Out-Null
 Write-Host `t(get-date -uformat %I:%M:%S) "Changing Primary SCSI controller to paravirtual" -ForegroundColor Green
 Get-HardDisk -VM $vmName | Select -First 1 | Get-ScsiController | Set-ScsiController -Type paravirtual | Out-Null
 
