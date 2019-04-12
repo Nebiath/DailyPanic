@@ -35,6 +35,8 @@ $WarningPreference = 'SilentlyContinue'
 # VM list to be modified. One name per line. It's a good idea to separate the VMs by vcenter.
 $vmName = Get-Content "C:\Path_To_File\VMs.txt"
 
+Start-Transcript -Path "C:\Path_To_File\Transcript.txt" -Append
+
 Write-Host (get-date -uformat %I:%M:%S) "Processing virtual machine:" $vmName -ForegroundColor Green
 
 # VM Shutdown
