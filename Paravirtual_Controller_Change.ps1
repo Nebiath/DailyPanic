@@ -6,9 +6,9 @@
    Take into account this KB https://kb.vmware.com/s/article/2015181
    Also checks if the advanced setting disk.enableUUID is set to true in the VM and sets if needed.
 .EXAMPLE
-   .\Paravirtual_Controller_Change.ps1 User Password
+   .\Paravirtual_Controller_Change.ps1
 .INPUTS
-   A username and password for the gust VM's OS must be provided. Also, a file with the VMs name must be included.
+   A file with the VMs name must be included inn a given location.
 .NOTES
    VMtools need to be installed ands running in the VMs to be modifies for the script to work as intended.
    Also, the user needs to be connected to the vcenter where the VMs are located with an account with enough privileges.
@@ -16,26 +16,13 @@
 
 #>
 
-[CmdletBinding()]
-
-param (
-  [Parameter(Position = 0, Mandatory, HelpMessage = "Please provide a username for connecting to the VMs OS.")]
-  [ValidateNotNullorEmpty()]
-	[string]$User,
-
-	[Parameter(Position = 1, Mandatory, HelpMessage = "Please provide a password for connecting to the VMs OS.")]
-  [ValidateNotNullorEmpty()]
-  [string]$Password
-
-)
-
 $WarningPreference = 'SilentlyContinue'
 
 # Defined variables
 # VM list to be modified. One name per line. It's a good idea to separate the VMs by vcenter.
-$vmName = Get-Content "C:\Webs\VMs.txt"
+$vmName = Get-Content "C:\Path_to_File\VMs.txt"
 
-Start-Transcript -Path "C:\Webs\Transcript.txt" -Append
+Start-Transcript -Path "C:\Path_to_File\Transcript.txt" -Append
 
 foreach($VM in $vmName) {
 
@@ -90,7 +77,9 @@ foreach($VM in $vmName) {
 
      # Online disks with PVSCSI resolving the online policy
      Write-Host `t(get-date -uformat %I:%M:%S) "Bringing the disks online" -ForegroundColor Green
-     Invoke-VMScript -vm $VM -GuestUser $User -GuestPassword $Password -ScriptText 'get-disk | where OperationalStatus -eq "Offline" | %{$_.Number ; Set-Disk -Number $_.Number -IsOffline $false; Set-Disk -Number $_.Number -IsReadOnly $false}' -Verbose:$false | Write-Verbose
+     # Asking for OS Credentials
+     $localCreds = Get-Credential
+     Invoke-VMScript -vm $VM -GuestCredential $localCreds -ScriptText 'get-disk | where OperationalStatus -eq "Offline" | %{$_.Number ; Set-Disk -Number $_.Number -IsOffline $false; Set-Disk -Number $_.Number -IsReadOnly $false}' -Verbose:$false | Write-Verbose
 
      Write-Host (get-date -uformat %I:%M:%S) "Processing completed! Please review change log above." -ForegroundColor Green
 }
