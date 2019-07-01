@@ -12,17 +12,22 @@
 .NOTES
    VMtools need to be installed ands running in the VMs to be modifies for the script to work as intended.
    Also, the user needs to be connected to the vcenter where the VMs are located with an account with enough privileges.
+   Version: 1.3
+   Author: Carlos Urgel
+   Creation date: 26/04/2019
 .FUNCTIONALITY
 
 #>
 
 $WarningPreference = 'SilentlyContinue'
+# Asking for OS Credentials
+$localCreds = Get-Credential -Message "Please enter credentials to access the VM Operating System"
 
 # Defined variables
 # VM list to be modified. One name per line. It's a good idea to separate the VMs by vcenter.
-$vmName = Get-Content "C:\Path_to_File\VMs.txt"
+$vmName = Get-Content "C:\Webs\VMs.txt"
 
-Start-Transcript -Path "C:\Path_to_File\Transcript.txt" -Append
+Start-Transcript -Path "C:\Webs\Transcript.txt" -Append
 
 foreach($VM in $vmName) {
 
@@ -77,8 +82,6 @@ foreach($VM in $vmName) {
 
      # Online disks with PVSCSI resolving the online policy
      Write-Host `t(get-date -uformat %I:%M:%S) "Bringing the disks online" -ForegroundColor Green
-     # Asking for OS Credentials
-     $localCreds = Get-Credential
      Invoke-VMScript -vm $VM -GuestCredential $localCreds -ScriptText 'get-disk | where OperationalStatus -eq "Offline" | %{$_.Number ; Set-Disk -Number $_.Number -IsOffline $false; Set-Disk -Number $_.Number -IsReadOnly $false}' -Verbose:$false | Write-Verbose
 
      Write-Host (get-date -uformat %I:%M:%S) "Processing completed! Please review change log above." -ForegroundColor Green
